@@ -90,14 +90,32 @@ const DnDFlow = (): JSX.Element => {
   }, [setNodes, setEdges]);
 
   const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges]
+    (connection) => {
+      // Determinar el nodo origen
+      const sourceNode = nodes.find(node => node.id === connection.source);
+
+      const edgeType = sourceNode?.type === 'multi-handle-card' ? 'status-edge' : undefined;
+
+      const newEdge = {
+        ...connection,
+        type: edgeType
+      };
+
+      setEdges((edges) => addEdge(newEdge, edges));
+    },
+    [setEdges, nodes]
   );
 
   const onReconnect: OnReconnect = useCallback((oldEdge, newConnection) => {
     setEdges((edges) => {
       const filteredEdges = edges.filter((edge) => edge.id !== oldEdge.id);
-      return addEdge(newConnection, filteredEdges);
+
+      // Preservar el tipo de edge del edge original
+      const newEdge = {
+        ...newConnection,
+        type: oldEdge.type
+      };
+      return addEdge(newEdge, filteredEdges);
     })
   }, [setEdges]);
 
@@ -181,6 +199,7 @@ const DnDFlow = (): JSX.Element => {
           edges={edges}
           edgeTypes={edgeTypes}
           onEdgesChange={onEdgesChange}
+          defaultEdgeOptions={{ type: 'step-edge' }}
           isValidConnection={validateConnection}
           onConnect={onConnect}
           onConnectEnd={onConnectEnd}

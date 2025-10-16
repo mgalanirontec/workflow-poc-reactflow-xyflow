@@ -47,7 +47,7 @@ export const MultiHandleCard = ({ data }: NodeProps<MultiHandleCardNode>) => {
               <Handle
                 type="source"
                 position={Position.Right}
-                id={`${option.id}-output`}
+                id={option.color}
                 className='handleBase'
                 style={{
                   background: option.color,
